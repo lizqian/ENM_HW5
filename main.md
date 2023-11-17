@@ -11,7 +11,7 @@ The datasets utilized in this project were sourced from Kaggle.com. The first da
 
 # Import Necessary Libraries and Load Datasets
 
-'''
+```
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,4 +19,4 @@ import seaborn as sns
 
 weather_data = pd.read_csv('cleaned_weather_data.csv')
 sales_data = pd.read_csv('raw_sales_data.csv')
-'''
+```
