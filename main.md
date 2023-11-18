@@ -57,7 +57,9 @@ merged_df['Temperature Interval'] = pd.cut(merged_df['tavg'], bins=range(0, 31, 
 ```
 
 # Filter and Merge Datasets
-#How does average temperature affect general volume of sales?
+# How does average temperature affect general volume of sales?
+Continuing our data exploration, I delved into the relationship between temperature intervals and the most sold clothing items. Beginning with the initialization of a dictionary to store our findings, I utilized Pandas to group the dataset by 'Temperature Interval,' creating distinct subsets for each temperature range. For each group, I identified the most frequently sold item and its corresponding sales count. This information was then stored in the 'most_sold_items_data' dictionary, associating each temperature interval with the most popular clothing item and the quantity sold. To enhance interpretability, I converted temperature intervals into string representations for both dictionary keys and x-axis labels. The subsequent creation of a bar plot provided a visual depiction of the most sold items across temperature ranges, with each bar labeled to showcase the specific item and its sales volume. This visual representation serves as a valuable tool for identifying patterns and insights into consumer preferences in response to varying temperature conditions, enriching our understanding of the intricate interplay between weather and retail dynamics. From this data, clothing companies can gain a better sense of the best selling clothing items at different temperatures. 
+
 ```
 # Initialize a dictionary to store the data
 most_sold_items_data = {}
@@ -91,3 +93,42 @@ plt.title('Amount of Most Sold Item for Each Temperature Interval (degrees C)')
 plt.show()
 ```
 ![Figure_1](https://github.com/lizqian/ENM_HW5/assets/133675095/fc94f32c-275f-45cf-9612-1886d7e487cd)
+
+# Which clothing items sell the best at different temperatures?
+Continuing the data analysis, I extended the investigation to understand the distribution of total sales across different temperature intervals. Leveraging Pandas, I computed the total number of sales within each temperature range and organized the results into a structured DataFrame. By merging this information with our previous findings on the most sold items, I created a comprehensive dataset encapsulating both the total sales count and the predominant item in each temperature interval. Calculating the percentage of total sales for each interval allowed me to quantify the contribution of specific items to overall sales within varying weather conditions. Visualizing these insights through a bar plot, with each bar labeled for clarity, provided a clear overview of the proportional impact of different clothing categories on total sales. From this part of the analysis, clothing retailers can better the realtionship between the proportional volume of sales and temperatures.
+
+```
+#Count total number of sales in each temperature interval
+total_sales_by_temp = merged_df.groupby('Temperature Interval')['Item Purchased'].count().reset_index()
+total_sales_by_temp = total_sales_by_temp.rename(columns={'Item Purchased': 'Total Sales'})
+
+#Merge with most_sold_items_data to get the item names
+total_sales_by_temp = total_sales_by_temp.merge(
+    pd.DataFrame(list(most_sold_items_data.values()), index=most_sold_items_data.keys(), columns=['Total Sold', 'Most Sold Item']),
+    left_on='Temperature Interval', right_index=True, how='left'
+)
+
+#Calculate the percentage of total sales for each temperature interval
+total_sales_by_temp['Percentage of Total Sales'] = (total_sales_by_temp['Total Sold'] / total_sales_by_temp['Total Sales']) * 100
+
+#Print the results
+print(total_sales_by_temp)
+
+#Plot percentage of total sales for each temperature interval
+plt.figure(figsize=(12, 8))
+plt.bar(interval_strings, total_sales_by_temp['Percentage of Total Sales'], color='lightcoral')
+
+#Add labels to the bars
+for interval, percentage in zip(total_sales_by_temp['Temperature Interval'], total_sales_by_temp['Percentage of Total Sales']):
+    plt.text(str(interval), percentage + 0.1, f'{percentage:.2f}%', ha='center', va='bottom')
+
+#Set plot labels and title
+plt.xlabel('Temperature Interval')
+plt.ylabel('Percentage of Total Sales')
+plt.title('Percentage of Total Sales in Each Temperature Interval (degrees C)')
+
+#Show the plot 
+plt.show()
+```
+![Figure_2](https://github.com/lizqian/ENM_HW5/assets/133675095/e3628617-d961-45f1-98f9-c0ae44556558)
+
