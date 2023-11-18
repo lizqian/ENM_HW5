@@ -1,18 +1,18 @@
 # ENM_HW5
-# Introduction: Answering Bea's Question
+## Introduction: Answering Bea's Question
 Bea's question is "How does average daily temperature affect fashion sales?". Specifically, I chose to answer this question by using average daily temperature data from Spain (Bea's home country!) with online fashion sales data. This question stemmed from Bea's interest in fashion data, and using statistics to quantify fashion trends. Though we had to renegotiate this question several times as the project evolved, this question still interests Bea because she is interested in investigating the relationship between online fashion sales and weather, especially in Spain where she lives. 
 In the realm of e-commerce, understanding the intricate relationship between external factors and sales performance is paramount for companies seeking to optimize their strategies. This data science project delves into the correlation between average temperature and clothing sales across diverse countries. Leveraging two distinct datasets—one containing weather data with country-specific average temperatures and the other encompassing online sales data—the investigation aims to unearth patterns and insights that could empower clothing companies, the audience of this project, to make informed decisions.
 
-# Abstract
+## Abstract
 This data science project focuses on the intersection of weather patterns and online clothing sales, exploring the nuanced correlations across various countries. Through meticulous data cleaning, merging, and analysis, the project aims to uncover how average temperature influences overall sales and whether these effects differ at a country-specific level. The investigation also extends to examining correlations between temperature and sales concerning different device types. The project's findings provide valuable insights for e-commerce clothing companies, potentially informing tailored strategies to capitalize on weather-related consumer behaviors. Through visualizations and statistical analyses, this project contributes a nuanced understanding of the intricate interplay between climate conditions and online clothing sales.
 
-# Data Collection
+## Data Collection
 The datasets utilized in this project were sourced from Kaggle.com. The first dataset encapsulates comprehensive weather data, encompassing country, date, and average temperature. The second dataset involves online sales data, specifying the country of purchase, date, item type (we're focusing on'Clothing,' 'Beauty,' and 'Accessory'), and the device type used for the transaction.
 
 https://www.kaggle.com/datasets/ronnykym/online-store-sales-data
 https://www.kaggle.com/datasets/luisvivas/spain-portugal-weather
 
-# Import Necessary Libraries and Load Datasets
+## Import Necessary Libraries and Load Datasets
 ```
 import pandas as pd
 import numpy as np
@@ -23,7 +23,7 @@ weather_data = pd.read_csv('cleaned_weather_data.csv')
 sales_data = pd.read_csv('raw_sales_data.csv')
 ```
 
-# Data Cleaning and Preprocessing
+## Data Cleaning and Preprocessing
 First, I addressed date format discrepancies in the 'weather_data' CSV by explicitly specifying the format and using the errors='coerce' parameter to handle potential inconsistencies. Subsequently, I ensured uniformity in the 'date' column across datasets by converting it to the datetime format. Additionally, we standardized column names, renaming the 'average_temperature' column in 'weather_data' to 'temperature' for consistency in merging. To enhance data quality, missing values were identified, and rows with null entries were removed.
 
 ```
@@ -44,7 +44,7 @@ sales_df['Date Purchase'] = pd.to_datetime(sales_df['Date Purchase'])
 sales_df['MonthDay'] = sales_df['Date Purchase'].dt.strftime('%m-%d')
 ```
 
-# Filter and Merge Datasets
+## Filter and Merge Datasets
 I integrated sales data with weather information to uncover potential correlations between weather conditions and retail performance. Leveraging Python and the Pandas library, we merged the sales data, represented by the 'MonthDay' column, with the daily average temperature data derived from the weather dataset. The merging process allowed us to associate each sales record with the corresponding temperature information based on the common date. To facilitate further analysis, we discretized the temperature data into intervals of 3 degrees Celsius, ranging up to a maximum value of 30 degrees. This discretization enabled us to explore how different temperature ranges might influence consumer purchasing behavior. The resulting 'Temperature Interval' column provided a structured basis for investigating patterns and trends in sales relative to varying temperature conditions. Overall, these preprocessing steps laid the foundation for subsequent analyses and visualizations, contributing to a comprehensive exploration of the interplay between weather and retail sales in our study.
 
 ```
@@ -56,8 +56,7 @@ merged_df = merged_df.drop(['day_month'], axis=1)
 merged_df['Temperature Interval'] = pd.cut(merged_df['tavg'], bins=range(0, 31, 3), right=False)
 ```
 
-# Filter and Merge Datasets
-# How does average temperature affect general volume of sales?
+### How does average temperature affect general volume of sales?
 Continuing our data exploration, I delved into the relationship between temperature intervals and the most sold clothing items. Beginning with the initialization of a dictionary to store our findings, I utilized Pandas to group the dataset by 'Temperature Interval,' creating distinct subsets for each temperature range. For each group, I identified the most frequently sold item and its corresponding sales count. This information was then stored in the 'most_sold_items_data' dictionary, associating each temperature interval with the most popular clothing item and the quantity sold. To enhance interpretability, I converted temperature intervals into string representations for both dictionary keys and x-axis labels. The subsequent creation of a bar plot provided a visual depiction of the most sold items across temperature ranges, with each bar labeled to showcase the specific item and its sales volume. This visual representation serves as a valuable tool for identifying patterns and insights into consumer preferences in response to varying temperature conditions, enriching our understanding of the intricate interplay between weather and retail dynamics. From this data, clothing companies can gain a better sense of the best selling clothing items at different temperatures. 
 
 ```
@@ -94,7 +93,7 @@ plt.show()
 ```
 ![Figure_1](https://github.com/lizqian/ENM_HW5/assets/133675095/fc94f32c-275f-45cf-9612-1886d7e487cd)
 
-# Which clothing items sell the best at different temperatures?
+### Which clothing items sell the best at different temperatures?
 Continuing the data analysis, I extended the investigation to understand the distribution of total sales across different temperature intervals. Leveraging Pandas, I computed the total number of sales within each temperature range and organized the results into a structured DataFrame. By merging this information with our previous findings on the most sold items, I created a comprehensive dataset encapsulating both the total sales count and the predominant item in each temperature interval. Calculating the percentage of total sales for each interval allowed me to quantify the contribution of specific items to overall sales within varying weather conditions. Visualizing these insights through a bar plot, with each bar labeled for clarity, provided a clear overview of the proportional impact of different clothing categories on total sales. From this part of the analysis, clothing retailers can better the realtionship between the proportional volume of sales and temperatures.
 
 ```
@@ -132,3 +131,77 @@ plt.show()
 ```
 ![Figure_2](https://github.com/lizqian/ENM_HW5/assets/133675095/e3628617-d961-45f1-98f9-c0ae44556558)
 
+### What categories of clothing sell best at various temperatures?
+In the final leg of our analysis, I delved deeper into understanding consumer preferences by classifying the most sold items into broader categories. Utilizing a function to map specific items to overarching clothing categories such as Tops, Pants, Shoes, Accessories, or Other, I aimed to distill key insights from our previously identified best-sellers. This categorization allowed us to discern patterns in consumer choices based on temperature intervals, offering retailers valuable insights for inventory management and strategic planning. As I visualized this information through a bar plot, each bar not only represented the number of items sold but also provided a clear label specifying the clothing category. This comprehensive view is instrumental for retailers seeking to align their product offerings with consumer preferences in various weather conditions, ultimately informing targeted marketing strategies and optimizing sales. I passed into ChatGPT a random sample of 200 of entries to create a simple classification function. While this is a redimentary way to classify the clothing types, many of the clothing types were repetitive and therefore those 200 random samples represented almost all if not all of the different clothing types. From this leg of the data anaylsis, clothing companies can better understand the correlation between the most popular categories of clothing types sold at different temperatures.
+
+```
+import pandas as pd
+
+#Read the CSV data into a DataFrame
+df = pd.read_csv('sales_with_average_temperature.csv')
+
+#Define a function to map items to categories
+def classify_item(item):
+    tops = ['Tunic', 'Tank Top', 'Onesie', 'Jacket', 'T-shirt', 'Romper', 'Blouse', 'Sweater', 'Cardigan', 'Camisole', 'Hoodie', 'Kimono', 'Polo Shirt']
+    pants = ['Leggings', 'Trousers', 'Jeans', 'Shorts', 'Pants', 'Overalls']
+    shoes = ['Loafers', 'Flip-Flops', 'Boots', 'Sneakers', 'Sandals']
+    accessories = ['Handbag', 'Wallet', 'Bowtie', 'Gloves', 'Scarf', 'Backpack', 'Belt', 'Hat', 'Tie', 'Umbrella', 'Socks', 'Sunglasses']
+
+    if item in tops:
+        return 'Top'
+    elif item in pants:
+        return 'Pants'
+    elif item in shoes:
+        return 'Shoes'
+    elif item in accessories:
+        return 'Accessories'
+    else:
+        return 'Other'
+
+#Create a dictionary to store the most sold category for each temperature interval
+most_sold_dict = {}
+
+#Find and save the data for the most sold category for each temperature range
+for interval, group in merged_df.groupby('Temperature Interval'):
+    most_sold_item = group['Item Purchased'].mode().iloc[0] if not group.empty else ''
+    most_sold_category = classify_item(most_sold_item)
+    number_sold = group['Item Purchased'].value_counts().iloc[0] if not group.empty else 0
+    most_sold_dict[interval] = (most_sold_category, number_sold)
+
+#Print the dictionary
+print(most_sold_dict)
+
+temp_intervals = list(most_sold_dict.keys())
+num_sales = [info[0] for info in most_sold_dict.values()]
+item_types = [info[1] for info in most_sold_dict.values()]
+
+#Extract data for plotting
+temperature_intervals = list(most_sold_dict.keys())
+num_items_sold = [value[1] for value in most_sold_dict.values()]
+#Convert intervals to strings for plotting
+temperature_intervals_str = [str(interval) for interval in temperature_intervals]
+
+#Create a bar plot
+plt.figure(figsize=(10, 6))
+plt.bar(temperature_intervals_str, num_items_sold, color='lightcoral')
+
+#Add labels and title
+plt.xlabel('Temperature Intervals')
+plt.ylabel('Number of Items Sold')
+plt.title('Most Sold Clothing Category in Each Temperature Interval')
+
+#Add labels to each bar
+for interval, (category, num_sold) in most_sold_dict.items():
+    plt.text(str(interval), num_sold + 0.1, f'{num_sold}\n{category}', ha='center', va='bottom')
+    
+#Add labels to each bar
+#for i, num_sold in enumerate(num_items_sold):
+#plt.text(temperature_intervals_str[i], num_sold + 0.1, f'{num_sold}', ha='center', va='bottom')
+
+#for interval, (amount_sold, item_name) in most_sold_items_data.items():
+#plt.text(str(interval), amount_sold + 0.1, f'{item_name}\n({amount_sold} sold)', ha='center', va='bottom')
+
+#Show the plot
+plt.show()
+```
+![Figure_3](https://github.com/lizqian/ENM_HW5/assets/133675095/23e85f22-74e8-46be-809f-2cf50b6e34f1)
