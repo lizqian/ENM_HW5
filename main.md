@@ -9,8 +9,10 @@ This data science project focuses on the intersection of weather patterns and on
 # Data Collection
 The datasets utilized in this project were sourced from Kaggle.com. The first dataset encapsulates comprehensive weather data, encompassing country, date, and average temperature. The second dataset involves online sales data, specifying the country of purchase, date, item type (we're focusing on'Clothing,' 'Beauty,' and 'Accessory'), and the device type used for the transaction.
 
-# Import Necessary Libraries and Load Datasets
+https://www.kaggle.com/datasets/ronnykym/online-store-sales-data
+https://www.kaggle.com/datasets/luisvivas/spain-portugal-weather
 
+# Import Necessary Libraries and Load Datasets
 ```
 import pandas as pd
 import numpy as np
@@ -20,8 +22,8 @@ import seaborn as sns
 weather_data = pd.read_csv('cleaned_weather_data.csv')
 sales_data = pd.read_csv('raw_sales_data.csv')
 ```
-# Data Cleaning and Preprocessing
 
+# Data Cleaning and Preprocessing
 First, I addressed date format discrepancies in the 'weather_data' CSV by explicitly specifying the format and using the errors='coerce' parameter to handle potential inconsistencies. Subsequently, I ensured uniformity in the 'date' column across datasets by converting it to the datetime format. Additionally, we standardized column names, renaming the 'average_temperature' column in 'weather_data' to 'temperature' for consistency in merging. To enhance data quality, missing values were identified, and rows with null entries were removed.
 
 ```
@@ -43,4 +45,49 @@ sales_df['MonthDay'] = sales_df['Date Purchase'].dt.strftime('%m-%d')
 ```
 
 # Filter and Merge Datasets
-In the "Filter and Merge Datasets" phase of this project, I focused on combining and refining the datasets to facilitate a more targeted analysis. After cleaning and preprocessing the weather and sales datasets individually, I employed the Pandas library to merge these datasets based on common columns such as 'country' and 'date.' This integration created a unified dataset that incorporates both weather-related information and sales transactions. To narrow our focus to relevant sales data for e-commerce clothing companies, we filtered the merged dataset to include only items categorized as 'Clothing,' 'Beauty,' or 'Accessory.' This filtering was essential for honing in on the specific product types of interest. The resulting 'filtered_data' dataset now serves as a refined foundation for further exploration, enabling us to delve into correlations between average temperature and sales for these specific product categories. The code modifications implemented ensure the accurate filtering of the dataset, addressing any potential errors encountered during the process.
+I integrated sales data with weather information to uncover potential correlations between weather conditions and retail performance. Leveraging Python and the Pandas library, we merged the sales data, represented by the 'MonthDay' column, with the daily average temperature data derived from the weather dataset. The merging process allowed us to associate each sales record with the corresponding temperature information based on the common date. To facilitate further analysis, we discretized the temperature data into intervals of 3 degrees Celsius, ranging up to a maximum value of 30 degrees. This discretization enabled us to explore how different temperature ranges might influence consumer purchasing behavior. The resulting 'Temperature Interval' column provided a structured basis for investigating patterns and trends in sales relative to varying temperature conditions. Overall, these preprocessing steps laid the foundation for subsequent analyses and visualizations, contributing to a comprehensive exploration of the interplay between weather and retail sales in our study.
+
+```
+# Merge sales data with weather data based on the common 'MonthDay' column
+merged_df = pd.merge(sales_df, daily_avg, left_on='MonthDay', right_on='day_month', how='left')
+merged_df = merged_df.drop(['day_month'], axis=1)
+
+# Create temperature intervals of 3 degrees, with a maximum value of 30 degrees
+merged_df['Temperature Interval'] = pd.cut(merged_df['tavg'], bins=range(0, 31, 3), right=False)
+```
+
+# Filter and Merge Datasets
+#How does average temperature affect general volume of sales?
+```
+# Initialize a dictionary to store the data
+most_sold_items_data = {}
+
+# Find and save the data for the most sold item for each temperature range
+for interval, group in merged_df.groupby('Temperature Interval'):
+    most_sold_item = group['Item Purchased'].mode().iloc[0] if not group.empty else ''
+    number_sold = group['Item Purchased'].value_counts().iloc[0] if not group.empty else 0
+    most_sold_items_data[interval] = (number_sold, most_sold_item)
+
+# Print the dictionary
+print(most_sold_items_data)
+
+# Convert temperature intervals to strings for dictionary keys and x-axis labels
+interval_strings = [str(interval) for interval in most_sold_items_data.keys()]
+
+# Create a barplot using the most_sold_items_data dictionary
+plt.figure(figsize=(12, 8))
+plt.bar(interval_strings, [item[0] for item in most_sold_items_data.values()], color='skyblue')
+
+# Add labels to the bars
+for interval, (amount_sold, item_name) in most_sold_items_data.items():
+    plt.text(str(interval), amount_sold + 0.1, f'{item_name}\n({amount_sold} sold)', ha='center', va='bottom')
+
+# Set plot labels and title
+plt.xlabel('Temperature Interval')
+plt.ylabel('Amount Sold')
+plt.title('Amount of Most Sold Item for Each Temperature Interval (degrees C)')
+
+# Show the plot
+plt.show()
+```
+![Figure_1](https://github.com/lizqian/ENM_HW5/assets/133675095/fc94f32c-275f-45cf-9612-1886d7e487cd)
